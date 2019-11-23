@@ -1,0 +1,1 @@
+prepend a dot and move to root directory, append "source ~/.my_custom_commands.sh" to ~/.bashrc
