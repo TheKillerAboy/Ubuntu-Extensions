@@ -6,10 +6,11 @@ import os
 import shlex
 
 CONFIG = {}
+PY_DIR = os.path.abspath(os.path.join(os.path.realpath(__file__),'..'))
 
 def get_config():
     global CONFIG
-    with open('config.json','r') as file:
+    with open(os.path.join(PY_DIR,'config.json'),'r') as file:
         CONFIG = json.load(file)
 
 def set_config():
@@ -38,7 +39,7 @@ def config_command(cmd, *args):
     elif cmd == 'GET':
         print(CONFIG['USER'][args[0].upper()])
     elif cmd == 'EXIT':
-        with open('config.json','w') as file:
+        with open(os.path.join(PY_DIR,'config.json'),'w') as file:
             json.dump(CONFIG,file)
         exit()
     elif cmd == 'RESET':
@@ -58,12 +59,14 @@ def get_soup(url):
 
 def get_problem_ids():
     soup = get_soup(CONFIG['USER']['CODEFORCES_CONTEST_PAGE_VAL'])
+    print('getting contest problem data...')
     problems_obj = soup.find('table',class_ = 'problems')
     problem_temp = template_replace(CONFIG['USER']['CODEFORCES_PROBLEM_TEMP'], contest_id = CONFIG['USER']['CONTEST_ID'])
     problems = set()
     for pot_problem in problems_obj.find_all('a'):
         if problem_temp in pot_problem['href']:
             problems.add(pot_problem['href'].replace(problem_temp,''))
+    print('finished getting contest problem data')
     return sorted(list(problems))
 
 def get_file_name_problem(problem_id,problem_name):
@@ -72,10 +75,17 @@ def get_file_name_problem(problem_id,problem_name):
         problem_name = f'{problem_id.lower()}-{problem_name}'
     return problem_name
 
+
+def file_mod(dir):
+    os.system(f'sudo chmod a+rw {dir}')
+    os.system(f'sudo chgrp {os.getlogin()} {dir}')
+    os.system(f'sudo chown {os.getlogin()} {dir}')
+
 def write_file(filename, contents):
     dir = os.path.join(os.getcwd(),filename)
     with open(dir, 'w') as file:
         file.writelines(contents)
+    file_mod(dir)
 
 def parse_io_data_probelm(data):
     if data[0] == '\n':
@@ -85,9 +95,11 @@ def parse_io_data_probelm(data):
     return data
 
 def write_problem(problem_id):
+    print(f'getting problem {problem_id}\'s data...')
     problem_url = template_replace(CONFIG['USER']['CODEFORCES_PROBLEM_PAGE_TEMP'], contest_id = CONFIG['USER']['CONTEST_ID'],problem_id=problem_id)
     soup = get_soup(problem_url)
     problem_name = soup.find('div', class_ = 'title').text.replace(f'{problem_id}. ','')
+    print(f'writing problem {problem_id}. {problem_name}\'s io data...')
     for i, input_source in enumerate(soup.find_all('div', class_ = 'input')):
         input_data = parse_io_data_probelm(input_source.find('pre').text)
         write_file(f'{get_file_name_problem(problem_id,problem_name)}.in.{i+1}',input_data)
@@ -95,7 +107,12 @@ def write_problem(problem_id):
         output_data = parse_io_data_probelm(output_source.find('pre').text)
         write_file(f'{get_file_name_problem(problem_id,problem_name)}.out.{i+1}',output_data)
     if CONFIG['USER']['CPP_FILE_CREATE']:
-        os.system(f'cd "{os.getcwd()}";{CONFIG["USER"]["CPP_FILE_CREATE_COMMAND"]} {get_file_name_problem(problem_id,problem_name)}.cpp')
+        if not os.path.exists(CONFIG['USER']["TEMPLATE_CPP_FILE"]):
+            print('TEMPLATE FILE DOES NOT EXIST')
+        else:
+            os.system(f'sudo cp {CONFIG["USER"]["TEMPLATE_CPP_FILE"]} {get_file_name_problem(problem_id,problem_name)}.cpp')
+            file_mod(f'{get_file_name_problem(problem_id,problem_name)}.cpp')
+    print(f'finished problem {problem_id}. {problem_name}')
 
 def main(contest_id):
     global soup
