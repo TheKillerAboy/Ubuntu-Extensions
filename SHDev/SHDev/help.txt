@@ -1,0 +1,22 @@
+functions:
+	install-
+		parameter(s): alias(string) file(string)
+		remove from develepor functions 
+	remove-
+		parameter(s): alias(string) file(string)
+		remove from develepor functions 
+	import-
+		parameter(s) : file(string)
+		import sh in local terminal
+	install-file-
+		parameter(s) : file(string)
+		add file/folder to SHDev directory (i.e. ~/.SHDev/)
+	remove-file-
+		parameter(s) : file(string)
+		remove file/folder to SHDev directory (i.e. ~/.SHDev/)
+	build-
+		parameter(s): folder(string) shell file of methods(local to folder)(string)
+		builds install file for folder
+	exec-
+		parameter(s) : file(string)
+		gives executable rights to file

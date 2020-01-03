@@ -1,0 +1,1 @@
+{"__main__": "function SHDev(){\n\tcase $1 in\n\t\timport)\n\t\t\tsource \"$(pwd)/$1\"\n\t\t\t;;\n\t\tinstall)\n\t\t\tsudo python3 \"~/.SHDev/install.py\" $1 $2\n\t\t\t;;\n\t\tremove)\n\t\t\tsudo python3 \"~/.SHDev/remove.py\" $1 $2\n\t\t\t;;\n\t\thelp)\n\t\t\tcat ~/.SHDev/help.txt\n}\n"}
