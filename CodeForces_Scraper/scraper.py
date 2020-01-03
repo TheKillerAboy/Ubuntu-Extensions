@@ -28,6 +28,7 @@ def config_set_variable(var):
 
 def config_command(cmd, *args):
     global CONFIG
+    cmd = cmd.upper()
     if cmd == 'FIND':
         print('\n'.join(filter(lambda key : args[0].upper() in key, CONFIG['USER'].keys())))
     elif cmd == 'SHOW':
