@@ -1,0 +1,13 @@
+{
+  "USER": {
+    "INPUT_EXT": ".in",
+    "OUTPUT_EXT": ".out",
+    "PREFIX_ONLY": true,
+    "STEP_CASES": true,
+    "SHOW_OUTPUT": true,
+    "SHOW_"
+  },
+  "DEFAULTS": {
+
+  }
+}
