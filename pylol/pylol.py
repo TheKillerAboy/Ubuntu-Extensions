@@ -3,10 +3,62 @@ import os
 import shlex
 import itertools
 import requests
-from bs4 import BeautifulSoup
+from datetime import datetime
 
 PY_DIR = os.path.abspath(os.path.join(__file__,'..'))
 CONFIG = {}
+RIOTREQUEST = None
+
+def set_var_if_none(var,default):
+    return var if var != None else default
+
+class RiotRequest:
+    def __init__(self, api_info):
+        self.api_info = api_info
+        self.api_key = self.api_info['KEY']
+        self.request_url = self.api_info['URL']
+        self.header = self.api_info['HEADER']
+        self.header["X-Riot-Token"] = self.header["X-Riot-Token"].format(api_key = self.api_key)
+        self.special_urls = self.api_info['SPECIAL-URLS']
+
+        champions_data = requests.get(self.special_urls["CHAMPIONS"]["INFO"]).json()['data']
+        self.champions_data = {}
+        for champ_data in champions_data.values():
+            self.champions_data[int(champ_data['key'])] = champ_data
+
+
+    def get_request_url(self, gateway, request_type):
+        return self.request_url.format(gateway=gateway.lower(),request_type=request_type)
+
+    def summoner_by_name(self, summonerName, gateway):
+        url = self.get_request_url(gateway,self.special_urls['SUMMONER']["BY-NAME"]).format(summonerName=summonerName)
+        summoner = requests.get(url, headers = self.header)
+        return summoner.json()
+
+    def champion_masteries(self, summonerId, gateway):
+        url = self.get_request_url(gateway,self.special_urls['CHAMPIONS']["BY-NAME"]).format(encryptedSummonerId=summonerId)
+        champions = requests.get(url, headers = self.header)
+        return champions.json()
+
+class RiotUser:
+    def __init__(self,RIOTREQUEST, summonerName, gateway):
+        self.riotrequest = RIOTREQUEST
+        self.gateway = gateway
+        self.userObj = self.riotrequest.summoner_by_name(summonerName,gateway)
+        self.champions = None
+
+    def set_champion_masteries(self):
+        champions = self.riotrequest.champion_masteries(self.userObj['id'],self.gateway)
+        for champ in champions:
+            champ['data'] = self.riotrequest.champions_data[champ['championId']]
+        self.champions = champions
+
+    def get_champions_ranked(self):
+        #call set_champion_masteries before hand
+        output = []
+        for champ in self.champions:
+            output.append((champ['data']['name'],champ['championLevel'],champ['championPoints'],datetime.fromtimestamp(champ['lastPlayTime']/1000)))
+        return sorted(output, key=lambda champ:champ[1:3], reverse=True)
 
 def load_config():
     global CONFIG
@@ -20,26 +72,10 @@ def save_config():
 def parse_command_datatype(cmd):
     return cmd
 
-def get_soup(url):
-    page = requests.get(url)
-    return BeautifulSoup(page.text, 'html.parser')
-
-def set_var_if_none(var,default):
-    return var if var != None else default
-
-def list_of_user_champions(user = None, gateway = None, queue = 100):
-    user = set_var_if_none(user,CONFIG['USER']['USER'])
+def list_of_user_champions(username = None, gateway = None, queue = 100):
+    username = set_var_if_none(username,CONFIG['USER']['USER'])
     gateway = set_var_if_none(gateway,CONFIG['USER']['GATEWAY'])
-    url_champs = f'https://lolprofile.net/summoner/{gateway.lower()}/{user.lower()}#Champions'
-    soup = get_soup(url_champs)
-    for i, champ_div in enumerate(soup.find('table').find_all('tr')):
-        if i >= queue:
-            return
-        champ_name = champ_div.find('span', class_ = "champid").text
-        champ_level = champ_div.find('span',class_ =  'cs').text
-        champ_level = int(champ_level[champ_level.find('Level ')+len('Level '):])
-        champ_winrate = champ_div.find('span',class_ = 'winrate').text
-        yield f'Champion: {champ_name}, Level: {champ_level}, Winrate: {champ_winrate}'
+    print(user)
 
 def command(*args):
     if len(args) == 0:
@@ -69,6 +105,9 @@ def command(*args):
             print('\n'.join(list_of_user_champions(*args)))
     else:
         print("Dev AutoRun")
+        me = RiotUser(RIOTREQUEST,CONFIG['USER']['USER'],CONFIG['USER']['GATEWAY'])
+        me.set_champion_masteries()
+        print('\n'.join(map(lambda k:' '.join(map(str,k)),me.get_champions_ranked())))
 
 def require_config(attr, none_type, message = None, message_if_required = ''):
     if CONFIG['USER'][attr] == none_type:
@@ -78,6 +117,7 @@ def require_config(attr, none_type, message = None, message_if_required = ''):
 
 if __name__ == '__main__':
     load_config()
+    RIOTREQUEST = RiotRequest(CONFIG['API'])
     require_config('USER',"",message='Logged in as master user %%USER%%',message_if_required='Log in as master user: ')
     require_config('GATEWAY',"",message='Using gateway %%GATEWAY%%', message_if_required='Use gateway: ')
     while True:
