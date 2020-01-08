@@ -1,31 +1,29 @@
 {
   "API": {
-    "KEY": "RGAPI-824cce18-fd05-461a-b3b6-7d8f0a691c7f",
-    "URL": "https://{gateway}.api.riotgames.com/{request_type}",
-    "HEADER": {
-      "Origin": "https://developer.riotgames.com",
-      "Accept-Charset": "application/x-www-form-urlencoded; charset=UTF-8",
-      "X-Riot-Token": "{api_key}",
-      "Accept-Language": "en-US,en;q=0.9,af;q=0.8",
-      "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36"
-    },
-    "SPECIAL-URLS": {
-      "SUMMONER": {
-        "BY-NAME": "lol/summoner/v4/summoners/by-name/{summonerName}"
-      },
-      "CHAMPIONS": {
-        "BY-NAME": "lol/champion-mastery/v4/champion-masteries/by-summoner/{encryptedSummonerId}",
-        "INFO": "http://ddragon.leagueoflegends.com/cdn/9.24.2/data/en_US/champion.json"
-      }
-    }
+    "KEY": "RGAPI-3d161547-b94e-40de-89ed-a5d91ea72bd1",
+    "MAX-QUERY": 100,
+    "DATA-DRAGON-GATEWAY": "euw1"
   },
-   "USER":{
-      "USER":"AMeyburgh",
-      "GATEWAY":"EUW1"
-   },
-   "DEFAULTS":{
-      "USER":"",
-      "GATEWAY":"EUW1"
-   },
-   "HELP":""
+  "HELP": "",
+  "USER": {
+    "SUMMONER-NAME": "ameyburgh",
+    "SUMMONER-GATEWAY": "euw1"
+  },
+  "USER-DEFAULT": {
+    "SUMMONER-NAME": "",
+    "SUMMONER-GATEWAY": "euw1"
+  },
+  "ALL-GATEWAYS": [
+    "BR1",
+    "EUN1",
+    "EUW1",
+    "JP1",
+    "KR",
+    "LA1",
+    "LA2",
+    "NA1",
+    "OC1",
+    "TR1",
+    "RU"
+  ]
 }
