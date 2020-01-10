@@ -1,0 +1,33 @@
+.top-cred{
+}
+.creditals{
+}
+.account-profile{
+	zoom: 0.6;
+    -moz-transform: scale(0.6);
+    display: inline-block;
+    margin: 10px;
+}
+p{
+	margin: 5px;
+}
+.creditals{
+	font-weight: bold;
+}
+.creditals>span{
+	font-weight: normal;
+	float:right;
+}
+.red{
+    background-color: rgba(255,0,0,0.4);
+}
+.blue{
+    background-color: rgba(0,0,255,0.4);
+}
+.team{
+    display: inline-block;
+  border: 4px solid purple;
+  margin: 0;
+  padding: 0;
+
+}

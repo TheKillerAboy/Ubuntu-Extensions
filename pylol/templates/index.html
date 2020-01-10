@@ -1,0 +1,32 @@
+<html>
+<head>
+<title>Live Game : {{ username }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='main.css') }}">
+</head>
+
+<body>
+	{% for color in colors %}
+	<div class="{{ color }} side-panel">
+		{% for team in teams[color] %}
+			<div class="team">
+				{% for member in team %}
+					<div class="account-profile">
+						<p class="top-cred">Likely Role: {{ member.role }}</p>
+						<a href="{{ member.lolprofile }}"><img class = "champion-img" src="{{ member.pfp }}"></a>
+						<p class="creditals" style="text-align:left;">
+						    {{ member.champion.name }}
+						    <span>Lvl. {{ member.champion.level }}</span>
+						</p>
+						<p class="creditals" style="text-align:left;">
+						    {{ member.username }}
+						    <span>{{ member.champion.pts }} pts</span>
+						</p>
+					</div>
+				{% endfor %}
+			</div>
+		{% endfor %}
+	</div>
+	{% endfor %}
+</body>
+
+</html>
